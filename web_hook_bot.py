@@ -19,8 +19,8 @@ WEBHOOK_HOST = HOST_IP
 WEBHOOK_PORT = 8443  # 443, 80, 88 or 8443 (port need to be 'open')
 WEBHOOK_LISTEN = HOST_IP  # In some VPS you may need to put here the IP addr
 
-WEBHOOK_SSL_CERT = '/credentials/url_cert.pem'  # Path to the ssl certificate
-WEBHOOK_SSL_PRIV = '/credentials/url_private.key'  # Path to the ssl private key
+WEBHOOK_SSL_CERT = 'credentials/url_cert.pem'  # Path to the ssl certificate
+WEBHOOK_SSL_PRIV = 'credentials/url_private.key'  # Path to the ssl private key
 
 # Quick'n'dirty SSL certificate generation:
 #
