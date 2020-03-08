@@ -60,10 +60,11 @@ client = bigquery.Client()
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     #user_id = message.from.user_id
-    print(message, message['from_user']['id'])
-    user_id = message['from_user']['id']
-    QUERY = f"SELECT COUNT(*) FROM `users_BFemKh4v.users_info` WHERE user_id={user_id}"
-    res = client.query(query=QUERY)
+    print(message, message.from_user)
+    res = None
+    #user_id = message['from_user']['id']
+    #QUERY = f"SELECT COUNT(*) FROM `users_BFemKh4v.users_info` WHERE user_id={user_id}"
+    #res = client.query(query=QUERY)
 
     bot.reply_to(message,
                  (f"Hi there, I am EchoBot.\n"
