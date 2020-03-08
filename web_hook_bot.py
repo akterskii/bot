@@ -65,7 +65,7 @@ def send_welcome(message):
     user_id = message.from_user.id
     QUERY = f'SELECT * FROM `users_BFemKh4v.users_info` WHERE user_id="{user_id}"'
     res = client.query(query=QUERY)
-
+    res= list(res)
     print("count = ", res[0][0])
     assert len(res) < 2
     find = len(res) == 1
