@@ -65,10 +65,12 @@ def send_welcome(message):
     user_id = message.from_user.id
     QUERY = f"SELECT COUNT(*) FROM `users_BFemKh4v.users_info` WHERE user_id={user_id}"
     res = client.query(query=QUERY)
+    for row in res:
+        print(row[0])
 
     bot.reply_to(message,
                  (f"Hi there, I am EchoBot.\n"
-                  f"I am here to echo your kind words back to you. Your id = {message.from_user.id}, bq response={list(res)}"))
+                  f"I am here to echo your kind words back to you. Your id = {message.from_user.id}"))
 
 
 # Handle all other messages
