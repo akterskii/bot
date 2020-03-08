@@ -4,6 +4,7 @@
 # This is a simple echo bot using decorators and webhook with aiohttp
 # It echoes any incoming text messages and does not use the polling method.
 
+from datetime import datetime
 import logging
 import ssl
 
@@ -70,7 +71,9 @@ def send_welcome(message):
     assert len(res) < 2
     find = len(res) == 1
     if not find:
-        QUERY_INSERT = f'INSERT `users_BFemKh4v.users_info` (user_id, user_name) VALUES ("{message.from_user.id}", "{message.from_user.username}")'
+        ts = int(message.date)
+        reg_date = datetime.utcfromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
+        QUERY_INSERT = f'INSERT `users_BFemKh4v.users_info` (user_id, user_name, ) VALUES ("{message.from_user.id}", "{message.from_user.username}", "{reg_date}")'
         print(f'query={QUERY_INSERT}')
         res = client.query(query=QUERY_INSERT)
         print(f'inserted: {res}')
