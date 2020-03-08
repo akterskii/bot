@@ -73,17 +73,18 @@ def send_welcome(message):
     if not find:
         ts = int(message.date)
         reg_date = datetime.utcfromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
-        QUERY_INSERT = f'INSERT `users_BFemKh4v.users_info` (user_id, user_name, ) VALUES ("{message.from_user.id}", "{message.from_user.username}", "{reg_date}")'
+        QUERY_INSERT = f'INSERT `users_BFemKh4v.users_info` (user_id, user_name, registration_date) VALUES ("{message.from_user.id}", "{message.from_user.username}", "{reg_date}")'
         print(f'query={QUERY_INSERT}')
-        res = client.query(query=QUERY_INSERT)
+        status = client.query(query=QUERY_INSERT)
         print(f'inserted: {res}')
         user_name = message.from_user.username
     else:
         user_name = res[0][1]
+        status = 'OK'
     bot.reply_to(message,
                  (f"Hi {user_name}! I am EchoBot.\n"
                   f"I am here to echo your kind words back to you. "
-                  f"Your id = {message.from_user.id} resp={res}"))
+                  f"Your id = {message.from_user.id} status={status}"))
 
 
 # Handle all other messages
