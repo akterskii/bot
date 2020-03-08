@@ -68,7 +68,7 @@ def send_welcome(message):
 
     bot.reply_to(message,
                  (f"Hi there, I am EchoBot.\n"
-                  f"I am here to echo your kind words back to you. Your id = {message.from_user.user_id}, bq response={res}"))
+                  f"I am here to echo your kind words back to you. Your id = {message.from_user.id}, bq response={res}"))
 
 
 # Handle all other messages
