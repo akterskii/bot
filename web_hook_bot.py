@@ -70,9 +70,10 @@ def send_welcome(message):
     assert len(res) < 2
     find = len(res) == 1
     if not find:
-        QUERY_INSERT = f'INSERT `users_BFemKh4v.users_info` (user_id, user_name) VALUES ("{message.from_user.id}", "{message.from_user.username}") '
-        client.query(query=QUERY_INSERT)
-        print('inserted')
+        QUERY_INSERT = f'INSERT `users_BFemKh4v.users_info` (user_id, user_name) VALUES ("{message.from_user.id}", "{message.from_user.username}")'
+        print(f'query={QUERY_INSERT}')
+        res = client.query(query=QUERY_INSERT)
+        print(f'inserted: {res}')
         user_name = message.from_user.username
     else:
         user_name = res[0][1]
