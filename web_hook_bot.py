@@ -58,10 +58,11 @@ app.router.add_post('/{token}/', handle)
 # Handle '/start' and '/help'
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
-    user_id = message.User.user_id
+    #user_id = message.from.user_id
+    print(message)
     bot.reply_to(message,
                  (f"Hi there, I am EchoBot.\n"
-                  "I am here to echo your kind words back to you. Your id = {user_id}"))
+                  f"I am here to echo your kind words back to you. Your id = {user_id}"))
 
 
 # Handle all other messages
