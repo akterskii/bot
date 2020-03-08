@@ -63,13 +63,21 @@ def send_welcome(message):
     print(message, message.from_user)
     res = None
     user_id = message.from_user.id
-    QUERY = f'SELECT COUNT(*) FROM `users_BFemKh4v.users_info` WHERE user_id="{user_id}"'
+    QUERY = f'SELECT * FROM `users_BFemKh4v.users_info` WHERE user_id="{user_id}"'
     res = client.query(query=QUERY)
-    for row in res:
-        print(row[0])
 
+    print("count = ", res[0][0])
+    assert len(res) < 2
+    find = len(res) == 1
+    if not find:
+        QUERY_INSERT = f'INSERT `users_BFemKh4v.users_info` (user_id, user_name, registration_date) VALUES ('
+        client.query(query=QUERY_INSERT)
+        print('inserted')
+        user_name = message.from_user.username
+    else:
+        user_name = res[0][1]
     bot.reply_to(message,
-                 (f"Hi there, I am EchoBot.\n"
+                 (f"Hi {user_name}! I am EchoBot.\n"
                   f"I am here to echo your kind words back to you. Your id = {message.from_user.id} resp={list(res)}"))
 
 
