@@ -60,17 +60,17 @@ client = bigquery.Client()
 # Handle '/start' and '/help'
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
-    #user_id = message.from.user_id
-    print(message, message.from_user)
-    res = None
+    # user_id = message.from.user_id
+    # print(message, message.from_user)
+
     user_id = message.from_user.id
     QUERY = f'SELECT * FROM `users_BFemKh4v.users_info` WHERE user_id="{user_id}"'
     res = client.query(query=QUERY)
     res = list(res)
 
     assert len(res) < 2
-    find = len(res) == 1
-    if not find:
+    finded = len(res) == 1
+    if not finded:
         ts = int(message.date)
         reg_date = datetime.utcfromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
         QUERY_INSERT = f'INSERT `users_BFemKh4v.users_info` (user_id, user_name, registration_date) VALUES ("{message.from_user.id}", "{message.from_user.username}", "{reg_date}")'
@@ -86,6 +86,10 @@ def send_welcome(message):
                   f"I am here to echo your kind words back to you. "
                   f"Your id = {message.from_user.id} status={status}"))
 
+# Handle image uploads
+@bot.message_handler(func=lambda message: True, content_types=['photo'])
+def upload_photo(message):
+    bot.reply_to(message, 'get photo with metadata: ' + str(message))
 
 # Handle all other messages
 @bot.message_handler(func=lambda message: True, content_types=['text'])
