@@ -89,8 +89,8 @@ def send_welcome(message):
 # Handle image uploads
 @bot.message_handler(func=lambda message: True, content_types=['photo'])
 def upload_photo(message):
-    bot.reply_to(message, 'get photo with metadata: ' + str(message.photo.file_id))
     photo_id = message.photo[0].file_id
+    bot.reply_to(message, 'get photo with metadata: ' + str(photo_id))
     bot.send_photo(message.chat.id, photo_id)
 
 # Handle all other messages
