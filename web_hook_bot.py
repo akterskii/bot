@@ -13,6 +13,8 @@ from credentials.tokens import TOKEN, HOST_IP
 from google.cloud import bigquery
 import telebot
 
+from main_logic.image_processing import image_crop
+
 API_TOKEN = TOKEN
 
 WEBHOOK_HOST = HOST_IP
@@ -99,9 +101,12 @@ def upload_photo(message):
         file_info = bot.get_file(photo_id)
         print(f'finfo: {file_info}')
         downloaded_file = bot.download_file(file_info.file_path)
+
         with open(name, 'wb') as new_file:
             new_file.write(downloaded_file)
-        img = open(name, 'rb')
+
+        all_images = image_crop.crop_images(file_name=name)
+        img = open(all_images[1], 'rb')
         bot.send_message(chat_id, "Запрос от\n*{name} {last}*".format(
             name=message.chat.first_name, last=message.chat.last_name),
                          parse_mode="Markdown")  # от кого идет сообщение и его содержание
