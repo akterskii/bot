@@ -97,6 +97,7 @@ def upload_photo(message):
 
         name = photo_id + ".jpg"
         file_info = bot.get_file(photo_id)
+        print(f'finfo: {file_info}')
         downloaded_file = bot.download_file(file_info.file_path)
         with open(name, 'wb') as new_file:
             new_file.write(downloaded_file)
