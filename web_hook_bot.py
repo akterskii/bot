@@ -89,9 +89,24 @@ def send_welcome(message):
 # Handle image uploads
 @bot.message_handler(func=lambda message: True, content_types=['photo'])
 def upload_photo(message):
-    photo_id = message.photo[0].file_id
-    bot.reply_to(message, 'get photo with metadata: ' + str(photo_id))
-    bot.send_photo(message.chat.id, photo_id)
+    chat_id = message.chat.id
+    for photo in message.photo:
+        photo_id = photo.file_id
+        bot.reply_to(message, 'get photo with metadata: ' + str(photo_id))
+        # process_file
+
+        name = photo_id + ".jpg"
+        file_info = bot.get_file(photo_id)
+        downloaded_file = bot.download_file(file_info.file_path)
+        with open(name, 'wb') as new_file:
+            new_file.write(downloaded_file)
+        img = open(name, 'rb')
+        bot.send_message(chat_id, "Запрос от\n*{name} {last}*".format(
+            name=message.chat.first_name, last=message.chat.last_name),
+                         parse_mode="Markdown")  # от кого идет сообщение и его содержание
+        bot.send_photo(chat_id, img)
+        # end proceess
+    # bot.send_photo(message.chat.id, photo_id)
 
 # Handle all other messages
 @bot.message_handler(func=lambda message: True, content_types=['text'])
