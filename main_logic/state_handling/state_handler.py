@@ -11,7 +11,7 @@ from main_logic.user_managment.users_crud import User
 
 def get_user_state(user: User) -> State:
     user_id = user.get_id()
-    state_record = DatastoreClient().get_client().collection(USERS_STATES).document(user_id)
+    state_record = DatastoreClient().get_client().collection(USERS_STATES).document(user_id).get()
     print(state_record)
 
     state = State(**state_record)
