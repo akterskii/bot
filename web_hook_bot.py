@@ -81,7 +81,7 @@ def init_state(message):
     state_handler = QuestState(current_state=state.state_type)
     available_actions = state_handler.get_triggers()
     bot.reply_to(message, f'{available_actions}')
-    
+
 
 @bot.message_handler(commands=['new'])
 def send_welcome(message):
