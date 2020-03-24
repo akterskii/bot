@@ -13,6 +13,13 @@ from credentials.tokens import TOKEN, HOST_IP
 from google.cloud import bigquery
 import telebot
 
+from main_logic.common_const.common_const import USERS_COLLECTION
+from main_logic.google_cloud.clients import DatastoreClient
+from main_logic.image_processing import image_crop
+from main_logic.state_handling.quest_states import QuestState, QuestStateType
+from main_logic.state_handling.state_handler import get_user_state
+from main_logic.user_managment.users_crud import User
+
 API_TOKEN = TOKEN
 
 WEBHOOK_HOST = HOST_IP
@@ -59,6 +66,24 @@ client = bigquery.Client()
 
 # Handle '/start' and '/help'
 @bot.message_handler(commands=['start'])
+def init_state(message):
+    telegram_id = message.from_user.id
+    user = User.get_user_by_telegram_id(telegram_id=telegram_id)
+    print(f'us: {user}')
+    state = None
+    if user:
+        state = get_user_state(user=user)
+        print(f'st: {state}')
+
+    if not state:
+        state = QuestStateType.MODE_SELECTION
+
+    state_handler = QuestState(current_state=state.state_type)
+    available_actions = state_handler.get_triggers()
+    bot.reply_to(message, f'{available_actions}')
+    
+
+@bot.message_handler(commands=['new'])
 def send_welcome(message):
     # user_id = message.from.user_id
     # print(message, message.from_user)
@@ -89,9 +114,28 @@ def send_welcome(message):
 # Handle image uploads
 @bot.message_handler(func=lambda message: True, content_types=['photo'])
 def upload_photo(message):
-    photo_id = message.photo[0].file_id
-    bot.reply_to(message, 'get photo with metadata: ' + str(photo_id))
-    bot.send_photo(message.chat.id, photo_id)
+    chat_id = message.chat.id
+    for photo in message.photo:
+        photo_id = photo.file_id
+        bot.reply_to(message, 'get photo with metadata: ' + str(photo_id))
+        # process_file
+
+        name = photo_id + ".jpg"
+        file_info = bot.get_file(photo_id)
+        print(f'finfo: {file_info}')
+        downloaded_file = bot.download_file(file_info.file_path)
+
+        with open(name, 'wb') as new_file:
+            new_file.write(downloaded_file)
+
+        all_images = image_crop.crop_images(file_name=name)
+        img = open(all_images[1], 'rb')
+        bot.send_message(chat_id, "Запрос от\n*{name} {last}*".format(
+            name=message.chat.first_name, last=message.chat.last_name),
+                         parse_mode="Markdown")  # от кого идет сообщение и его содержание
+        bot.send_photo(chat_id, img)
+        # end proceess
+    # bot.send_photo(message.chat.id, photo_id)
 
 # Handle all other messages
 @bot.message_handler(func=lambda message: True, content_types=['text'])
