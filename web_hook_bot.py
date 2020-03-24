@@ -92,7 +92,7 @@ def init_state(message):
         state_type = QuestStateType.MODE_SELECTION
 
     state_handler = QuestState(current_state=state_type)
-    available_actions = state_handler.get_triggers()
+    available_actions = state_handler.machine.get_triggers()
     bot.reply_to(message, f'{available_actions}')
 
 
