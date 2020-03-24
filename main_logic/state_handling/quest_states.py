@@ -1,13 +1,13 @@
 from enum import Enum, auto
-from typing import Optional
+from typing import Optional, List, Tuple
 from dataclasses import dataclass
 from main_logic.state_handling.finite_state_machine import FiniteStateMachine
 from main_logic.state_handling.transitions_metadata import TransitionMetadataHandler
-
+from transitions import Machine
 
 class QuestStateType(Enum):
     #
-    UNDEFINED_COMMAND = auto
+    UNDEFINED_COMMAND = auto()
     # initial state
     MODE_SELECTION = auto()
 
@@ -27,27 +27,52 @@ class QuestStateType(Enum):
         #
     EDIT_QUEST_STEP_PHOTO = auto()
 
-
     # players states
     PLAY_START = auto()
     PLAY_STAGE = auto()
 
 
-@dataclass(frozen=True)
+class Actions(Enum):
+    LEVEL_UP = auto()
+    EDIT_QUESTS = auto()
+    LIST_ALL_QUESTS = auto()
+
+
+@dataclass
 class State:
     state_type: QuestStateType
-    quest_id: Optional[int]
-    step_id: Optional[int]
+    quest_id: Optional[str] = ''
+    step_id: Optional[int] = ''
+    available_commands: Tuple[str] = ()
 
 
-def get_fsm_for_quest():
-    quest_fsm: FiniteStateMachine[QuestStateType, TransitionMetadataHandler] = FiniteStateMachine[State, TransitionMetadataHandler]()
+class QuestState:
+    def __init__(self, current_state: QuestStateType):
+        self.machine = Machine(
+            model=self,
+            states=[state.name for state in QuestStateType],
+            initial=current_state.name,
+        )
 
-    # adding states
-    for state in QuestStateType:
-        quest_fsm.add_state(state)
+        self.machine.add_transition(
+            trigger=Actions.EDIT_QUESTS.name,
+            source=QuestStateType.MODE_SELECTION.name,
+            dest=QuestStateType.EDIT_QUEST.name)
 
-    # adding transitions
-    quest_fsm.add_transition(QuestStateType.MODE_SELECTION, QuestStateType.EDIT_INIT)
+        self.machine.add_transition(
+            trigger=Actions.LEVEL_UP.name,
+            source=QuestStateType.EDIT_QUEST.name,
+            dest=QuestStateType.MODE_SELECTION.name,
+        )
 
-    quest_fsm.add_transition()
+# def get_fsm_for_quest():
+#     quest_fsm: FiniteStateMachine[QuestStateType, TransitionMetadataHandler] = FiniteStateMachine[State, TransitionMetadataHandler]()
+#
+#     # adding states
+#     for state in QuestStateType:
+#         quest_fsm.add_state(state)
+#
+#     # adding transitions
+#     quest_fsm.add_transition(QuestStateType.MODE_SELECTION, QuestStateType.EDIT_INIT)
+#
+#     quest_fsm.add_transition()

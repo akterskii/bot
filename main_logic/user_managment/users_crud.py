@@ -2,29 +2,10 @@ import dataclasses
 from dataclasses import asdict
 from typing import Optional, Dict, Any, List
 
-from google.cloud import firestore
 from dataclasses import dataclass
 
 from main_logic.common_const.common_const import USERS_COLLECTION
-
-
-class MetaSingleton(type):
-    _instances = {}
-
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super(MetaSingleton, cls).__call__(*args,
-                                                                     **kwargs)
-        return cls._instances[cls]
-
-
-class DatastoreClient(metaclass=MetaSingleton):
-    _datastore_client = None
-
-    def get_client(self):
-        if self._datastore_client is None:
-            self._datastore_client = firestore.Client()
-        return self._datastore_client
+from main_logic.google_cloud.clients import DatastoreClient
 
 
 class UserNotFound(Exception):
@@ -106,10 +87,8 @@ class User:
             print(e)
             return None
 
-
-@dataclass
-class State:
-    pass
+    def get_id(self) -> str:
+        return self.user_id
 
 
 @dataclass

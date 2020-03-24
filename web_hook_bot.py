@@ -13,7 +13,12 @@ from credentials.tokens import TOKEN, HOST_IP
 from google.cloud import bigquery
 import telebot
 
+from main_logic.common_const.common_const import USERS_COLLECTION
+from main_logic.google_cloud.clients import DatastoreClient
 from main_logic.image_processing import image_crop
+from main_logic.state_handling.quest_states import QuestState, QuestStateType
+from main_logic.state_handling.state_handler import get_user_state
+from main_logic.user_managment.users_crud import User
 
 API_TOKEN = TOKEN
 
@@ -61,6 +66,24 @@ client = bigquery.Client()
 
 # Handle '/start' and '/help'
 @bot.message_handler(commands=['start'])
+def init_state(message):
+    telegram_id = message.from_user.id
+    user = User.get_user_by_telegram_id(telegram_id=telegram_id)
+    print(f'us: {user}')
+    state = None
+    if user:
+        state = get_user_state(user=user)
+        print(f'st: {state}')
+
+    if not state:
+        state = QuestStateType.MODE_SELECTION
+
+    state_handler = QuestState(current_state=state.state_type)
+    available_actions = state_handler.get_triggers()
+    bot.reply_to(message, f'{available_actions}')
+    
+
+@bot.message_handler(commands=['new'])
 def send_welcome(message):
     # user_id = message.from.user_id
     # print(message, message.from_user)
