@@ -68,7 +68,18 @@ client = bigquery.Client()
 @bot.message_handler(commands=['start'])
 def init_state(message):
     telegram_id = message.from_user.id
+
     user = User.get_user_by_telegram_id(telegram_id=telegram_id)
+    if not user:
+        first_name = message.from_user.first_name
+        last_name = message.from_user.last_name
+
+        user = User(
+            telegram_id=telegram_id,
+            first_name=first_name,
+            last_name=last_name,
+        )
+        user.add_to_db()
     print(f'us: {user}')
     state = None
     if user:

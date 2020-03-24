@@ -63,7 +63,7 @@ class User:
         users = list(users)
 
         if len(users) == 0:
-            raise UserNotFound
+            return None
         elif len(users) > 1:
             raise ManyUsersWithSameID
         return User(**(users[0].to_dict()))
