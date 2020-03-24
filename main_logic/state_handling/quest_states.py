@@ -1,7 +1,6 @@
 from enum import Enum, auto
 from typing import Optional, List, Tuple
 from dataclasses import dataclass
-from main_logic.state_handling.finite_state_machine import FiniteStateMachine
 from main_logic.state_handling.transitions_metadata import TransitionMetadataHandler
 from transitions import Machine
 
