@@ -75,6 +75,7 @@ def init_state(message):
         last_name = message.from_user.last_name
 
         user = User(
+            user_id='',
             telegram_id=telegram_id,
             first_name=first_name,
             last_name=last_name,
