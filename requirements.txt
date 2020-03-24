@@ -32,7 +32,7 @@ menuinst==1.4.16
 more-itertools==8.2.0
 numpy==1.17.2
 packaging==20.3
-Pillow==6.1.0
+Pillow==6.2.0
 pluggy==0.13.1
 protobuf==3.11.3
 py==1.8.1
