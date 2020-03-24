@@ -84,13 +84,13 @@ def init_state(message):
     print(f'us: {user}')
     state = None
     if user:
-        state = get_user_state(user=user)
+        state = get_user_state(user=user).state_type
         print(f'st: {state}')
 
     if not state:
         state = QuestStateType.MODE_SELECTION
 
-    state_handler = QuestState(current_state=state.state_type)
+    state_handler = QuestState(current_state=state)
     available_actions = state_handler.get_triggers()
     bot.reply_to(message, f'{available_actions}')
 
