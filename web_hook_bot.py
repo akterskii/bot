@@ -82,15 +82,16 @@ def init_state(message):
         )
         user.add_to_db()
     print(f'us: {user}')
-    state = None
+    state_type = None
     if user:
-        state = get_user_state(user=user).state_type
-        print(f'st: {state}')
+        state = get_user_state(user=user)
+        if not state:
+            state_type = state.state_type
 
-    if not state:
-        state = QuestStateType.MODE_SELECTION
+    if not state_type:
+        state_type = QuestStateType.MODE_SELECTION
 
-    state_handler = QuestState(current_state=state)
+    state_handler = QuestState(current_state=state_type)
     available_actions = state_handler.get_triggers()
     bot.reply_to(message, f'{available_actions}')
 
