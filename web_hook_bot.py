@@ -85,7 +85,7 @@ def init_state(message):
     state_type = None
     if user:
         state = get_user_state(user=user)
-        if not state:
+        if state:
             state_type = state.state_type
 
     if not state_type:
