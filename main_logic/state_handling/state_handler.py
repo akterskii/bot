@@ -1,5 +1,6 @@
 import json
 from dataclasses import asdict
+from typing import Optional
 
 from google.cloud import bigquery
 
@@ -9,12 +10,13 @@ from main_logic.state_handling.quest_states import State
 from main_logic.user_managment.users_crud import User
 
 
-def get_user_state(user: User) -> State:
+def get_user_state(user: User) -> Optional[State]:
     user_id = user.get_id()
     state_record = DatastoreClient().get_client().collection(USERS_STATES).document(user_id).get().to_dict()
     print(state_record)
-
-    state = State(**state_record)
+    state = None
+    if state_record:
+        state = State(**state_record)
 
     return state
 
