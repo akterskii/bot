@@ -7,17 +7,19 @@
 from datetime import datetime
 import logging
 import ssl
+from typing import Optional
 
 from aiohttp import web
 from credentials.tokens import TOKEN, HOST_IP
 from google.cloud import bigquery
 import telebot
 
-from main_logic.common_const.common_const import USERS_COLLECTION
+from main_logic.common.common_const import USERS_COLLECTION
+from main_logic.common.mappings import actions_to_comands
 from main_logic.google_cloud.clients import DatastoreClient
 from main_logic.image_processing import image_crop
-from main_logic.state_handling.quest_states import QuestState, QuestStateType
-from main_logic.state_handling.state_handler import get_user_state
+from main_logic.state_handling.quest_states import QuestState, QuestStateType, Actions
+from main_logic.state_handling.state_handler import get_user_state, update_user_state
 from main_logic.user_managment.users_crud import User
 
 API_TOKEN = TOKEN
@@ -64,37 +66,102 @@ app.router.add_post('/{token}/', handle)
 client = bigquery.Client()
 
 
+def get_telegram_user(message, create_new_user: bool) -> Optional[User]:
+    telegram_id = message.from_user.id
+    user = User.get_user_by_telegram_id(telegram_id=telegram_id)
+
+    if not user:
+        if create_new_user:
+            first_name = message.from_user.first_name
+            last_name = message.from_user.last_name
+
+            user = User(
+                user_id='',
+                telegram_id=telegram_id,
+                first_name=first_name,
+                last_name=last_name,
+            )
+            user.add_to_db()
+        else:
+            return None
+
+    return user
+
+
+def set_action(func, action: Actions):
+    def wrapper():
+        cur_action = action
+        func()
+    return wrapper
+
+def get_telegram_user_state(user: User) -> QuestStateType:
+    print(f'Get state of the user: {user}')
+    state_type = None
+
+    state = get_user_state(user=user)
+    print(f'Receive state: {state}')
+    if state:
+        state_type = state.state_type
+    return state_type
+
+
+q = QuestState(current_state=QuestStateType.MODE_SELECTION)
+@bot.message_handler()
+def text_message(message):
+    user = get_telegram_user(message=message, create_new_user=False)
+    state_type = get_telegram_user_state(user=user)
+    text = f'user: {user}, init_state: {state_type}'
+    print(f'text_message CALL:' + text)
+    flag = True
+    if state_type == QuestStateType.MODE_SELECTION:
+        if message.text == 'edit':
+            update_user_state(user=user, new_state=QuestStateType.EDIT_INIT)
+            bot.send_message(chat_id=user.telegram_id, text=text + "Edit mode")
+        elif message.text == 'play':
+            update_user_state(user=user, new_state=QuestStateType.PLAY_START)
+            bot.send_message(chat_id=user.telegram_id, text=text + "Play mode")
+        else:
+            flag = False
+
+    if state_type == QuestStateType.EDIT_INIT:
+        if message.text == 'back':
+            update_user_state(user=user, new_state=QuestStateType.MODE_SELECTION)
+            bot.send_message(chat_id=user.telegram_id, text=text + "Main menu")
+        else:
+            flag = False
+
+    if state_type == QuestStateType.PLAY_START:
+        if message.text == 'back':
+            update_user_state(user=user, new_state=QuestStateType.MODE_SELECTION)
+            bot.send_message(chat_id=user.telegram_id, text=text + "Main menu")
+        else:
+            flag = False
+
+    if not flag:
+        bot.send_message(chat_id=user.telegram_id, text=text + "IDK :-(")
+
 # Handle '/start' and '/help'
 @bot.message_handler(commands=['start'])
 def init_state(message):
-    telegram_id = message.from_user.id
-
-    user = User.get_user_by_telegram_id(telegram_id=telegram_id)
-    if not user:
-        first_name = message.from_user.first_name
-        last_name = message.from_user.last_name
-
-        user = User(
-            user_id='',
-            telegram_id=telegram_id,
-            first_name=first_name,
-            last_name=last_name,
-        )
-        user.add_to_db()
-    print(f'us: {user}')
-    state_type = None
-    if user:
-        state = get_user_state(user=user)
-        if state:
-            state_type = state.state_type
+    user = get_telegram_user(message=message, create_new_user=True)
+    state_type =get_telegram_user_state(user=user)
 
     if not state_type:
         state_type = QuestStateType.MODE_SELECTION
 
     state_handler = QuestState(current_state=state_type)
-    print(f'type {state_type}, handler={state_handler}')
-    available_actions = state_handler.machine.get_transitions()
+    available_actions = state_handler.machine.get_transitions(source=state_type)
     bot.reply_to(message, f'available states: {available_actions}')
+
+
+cur_action = Actions.
+@bot.message_handler(commands=[actions_to_comands[Actions.LIST_ALL_QUESTS]])
+def list_quests(message):
+    user = get_telegram_user(message=message, create_new_user=False)
+    state_type = get_telegram_user_state(user=user)
+    if not state_type:
+        pass
+
 
 
 @bot.message_handler(commands=['new'])

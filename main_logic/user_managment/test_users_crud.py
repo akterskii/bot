@@ -2,7 +2,7 @@ from dataclasses import asdict
 
 import pytest
 
-from main_logic.common_const.common_const import USERS_COLLECTION
+from main_logic.common.common_const import USERS_COLLECTION
 from main_logic.user_managment.users_crud import DatastoreClient, User
 
 

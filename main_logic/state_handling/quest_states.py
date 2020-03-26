@@ -2,26 +2,36 @@ from enum import Enum, auto
 from typing import Optional, List, Tuple
 from dataclasses import dataclass
 from main_logic.state_handling.transitions_metadata import TransitionMetadataHandler
-from transitions import Machine
+from transitions import GraphMachine
 
 class QuestStateType(Enum):
     #
     UNDEFINED_COMMAND = auto()
     # initial state
     MODE_SELECTION = auto()
+    # play (start_playing)
+    # edit (start_editing)
 
     # editor states
     EDIT_INIT = auto()
-        # list all
-        # select quest by id
-        # create new
+    # shows all quests
+        # delete quest
+        # edit quest
+        # create new quest
+        # level up
     EDIT_QUEST = auto()
-        # list all steps
-        # select step by id
+    EDIT_CREATE_NEW = auto()
+    # shows all existing steps
+        # select step
         # add new
+        # delete step
+        # level up
+
     EDIT_QUEST_STEP = auto()
+    # shows current step
         # edit photo
         # edit quiz
+        # level up
     EDIT_QUEST_STEP_QUIZ = auto()
         #
     EDIT_QUEST_STEP_PHOTO = auto()
@@ -33,9 +43,10 @@ class QuestStateType(Enum):
 
 class Actions(Enum):
     LEVEL_UP = auto()
-    EDIT_QUESTS = auto()
-    LIST_ALL_QUESTS = auto()
-
+    EDIT_START_EDITING = auto()
+    SELECT_EXISTING_QUEST = auto()
+    CREATE_NEW_QUEST = auto()
+    ENTER_STEP_ID = auto()
 
 @dataclass
 class State:
@@ -47,22 +58,56 @@ class State:
 
 class QuestState:
     def __init__(self, current_state: QuestStateType):
-        self.machine = Machine(
+        self.machine = GraphMachine(
             model=self,
             states=[state.name for state in QuestStateType],
             initial=current_state.name,
+            ignore_invalid_triggers=True,
+            auto_transitions=False,
         )
 
+        # init -> editing
         self.machine.add_transition(
-            trigger=Actions.EDIT_QUESTS.name,
+            trigger=Actions.EDIT_START_EDITING.name,
             source=QuestStateType.MODE_SELECTION.name,
-            dest=QuestStateType.EDIT_QUEST.name)
-
+            dest=QuestStateType.EDIT_INIT.name)
+        # editing -> init
+        self.machine.add_transition(
+            trigger=Actions.LEVEL_UP.name,
+            source=QuestStateType.EDIT_INIT.name,
+            dest=QuestStateType.MODE_SELECTION.name,
+        )
+        # editing -> edit existing quest
+        self.machine.add_transition(
+            trigger=Actions.SELECT_EXISTING_QUEST.name,
+            source=QuestStateType.EDIT_INIT.name,
+            dest=QuestStateType.EDIT_QUEST.name,
+        )
+        # edit existing quest -> editing
         self.machine.add_transition(
             trigger=Actions.LEVEL_UP.name,
             source=QuestStateType.EDIT_QUEST.name,
-            dest=QuestStateType.MODE_SELECTION.name,
+            dest=QuestStateType.EDIT_INIT.name,
         )
+        # editing -> edit new quest
+        self.machine.add_transition(
+            trigger=Actions.CREATE_NEW_QUEST.name,
+            source=QuestStateType.EDIT_INIT.name,
+            dest=QuestStateType.EDIT_QUEST.name,
+        )
+        self.machine.add_transition(
+            trigger=Actions.ENTER_STEP_ID.name,
+            source=QuestStateType.EDIT_QUEST.name,
+            dest=QuestStateType.EDIT_QUEST_STEP.name,
+        )
+        # self.machine.add_transition(
+        #     trigger=Actions..name,
+        #     source=QuestStateType..name,
+        #     dest=QuestStateType..name,
+        # )
+
+
+
 
 # def get_fsm_for_quest():
 #     quest_fsm: FiniteStateMachine[QuestStateType, TransitionMetadataHandler] = FiniteStateMachine[State, TransitionMetadataHandler]()

@@ -2,7 +2,7 @@ from typing import Dict
 
 from envs.poseenv.Lib import os
 
-from main_logic.common_const.common_const import QUEST_STAGES
+from main_logic.common.common_const import QUEST_STAGES
 from main_logic.google_cloud.clients import DatastoreClient
 from main_logic.google_cloud.file_management import upload_to_bucket
 from main_logic.image_processing.image_crop import crop_images

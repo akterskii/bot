@@ -4,7 +4,7 @@ from typing import Optional, Dict, Any, List
 
 from dataclasses import dataclass
 
-from main_logic.common_const.common_const import USERS_COLLECTION
+from main_logic.common.common_const import USERS_COLLECTION
 from main_logic.google_cloud.clients import DatastoreClient
 
 

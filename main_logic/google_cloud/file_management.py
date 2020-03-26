@@ -1,6 +1,6 @@
 import os
 
-from main_logic.common_const.common_const import IMAGE_STORAGE
+from main_logic.common.common_const import IMAGE_STORAGE
 from main_logic.google_cloud.clients import StorageClient
 
 
