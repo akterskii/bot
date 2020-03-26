@@ -154,7 +154,6 @@ def init_state(message):
     bot.reply_to(message, f'available states: {available_actions}')
 
 
-cur_action = Actions.
 @bot.message_handler(commands=[actions_to_comands[Actions.LIST_ALL_QUESTS]])
 def list_quests(message):
     user = get_telegram_user(message=message, create_new_user=False)
