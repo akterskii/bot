@@ -2,7 +2,7 @@ from enum import Enum, auto
 from typing import Optional, List, Tuple
 from dataclasses import dataclass
 from main_logic.state_handling.transitions_metadata import TransitionMetadataHandler
-from transitions import GraphMachine
+from transitions import Machine
 
 class QuestStateType(Enum):
     #
@@ -58,7 +58,7 @@ class State:
 
 class QuestState:
     def __init__(self, current_state: QuestStateType):
-        self.machine = GraphMachine(
+        self.machine = Machine(
             model=self,
             states=[state.name for state in QuestStateType],
             initial=current_state.name,
