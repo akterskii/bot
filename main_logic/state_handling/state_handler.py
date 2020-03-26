@@ -25,7 +25,7 @@ def update_user_state(user: User, new_state: QuestStateType) -> bool:
     try:
         user_id = user.get_id()
         state_ref = DatastoreClient().get_client().collection(USERS_STATES).document(user_id)
-        state_ref.update({u'state': new_state.name})
+        state_ref.update({u'state_type': new_state.name})
         return True
     except Exception as e:
         print(f'Update of state failed for user {user} to state: {new_state}. '
