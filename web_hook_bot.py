@@ -113,7 +113,7 @@ def text_message(message):
     text = f'user: {user}, init_state: {state_type}'
     print(f'text_message CALL:' + text)
     flag = True
-    if QuestStateType(state_type) == QuestStateType.MODE_SELECTION:
+    if QuestStateType[state_type] == QuestStateType.MODE_SELECTION:
         if message.text == 'edit':
             update_user_state(user=user, new_state=QuestStateType.EDIT_INIT)
             bot.send_message(chat_id=user.telegram_id, text=text + "Edit mode")
@@ -123,14 +123,14 @@ def text_message(message):
         else:
             flag = False
 
-    if state_type == QuestStateType.EDIT_INIT:
+    if QuestStateType[state_type] == QuestStateType.EDIT_INIT:
         if message.text == 'back':
             update_user_state(user=user, new_state=QuestStateType.MODE_SELECTION)
             bot.send_message(chat_id=user.telegram_id, text=text + "Main menu")
         else:
             flag = False
 
-    if state_type == QuestStateType.PLAY_START:
+    if QuestStateType[state_type] == QuestStateType.PLAY_START:
         if message.text == 'back':
             update_user_state(user=user, new_state=QuestStateType.MODE_SELECTION)
             bot.send_message(chat_id=user.telegram_id, text=text + "Main menu")
