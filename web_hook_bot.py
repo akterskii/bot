@@ -113,7 +113,7 @@ def text_message(message):
     text = f'user: {user}, init_state: {state_type}'
     print(f'text_message CALL:' + text)
     flag = True
-    if state_type == QuestStateType.MODE_SELECTION:
+    if QuestStateType(state_type) == QuestStateType.MODE_SELECTION:
         if message.text == 'edit':
             update_user_state(user=user, new_state=QuestStateType.EDIT_INIT)
             bot.send_message(chat_id=user.telegram_id, text=text + "Edit mode")
