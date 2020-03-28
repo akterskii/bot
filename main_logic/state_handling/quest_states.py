@@ -1,6 +1,8 @@
 from enum import Enum, auto
 from typing import Optional, List, Tuple
 from dataclasses import dataclass
+
+from main_logic.common.patterns import MetaSingleton
 from main_logic.state_handling.transitions_metadata import TransitionMetadataHandler
 from transitions import Machine
 
@@ -47,6 +49,7 @@ class Actions(Enum):
     SELECT_EXISTING_QUEST = auto()
     CREATE_NEW_QUEST = auto()
     ENTER_STEP_ID = auto()
+    PLAY = auto()
 
 @dataclass
 class State:
@@ -56,12 +59,19 @@ class State:
     available_commands: Tuple[str] = ()
 
 
-class QuestState:
-    def __init__(self, current_state: QuestStateType):
+class QuestState(metaclass=MetaSingleton):
+    _instance = None
+
+    def get_state_handler(self):
+        if self._instance is None:
+            self._instance = QuestState()
+            return self._instance
+
+    def __init__(self):
         self.machine = Machine(
             model=self,
             states=[state.name for state in QuestStateType],
-            initial=current_state.name,
+            initial=QuestStateType(1).name,
             ignore_invalid_triggers=True,
             auto_transitions=False,
         )
@@ -99,6 +109,16 @@ class QuestState:
             trigger=Actions.ENTER_STEP_ID.name,
             source=QuestStateType.EDIT_QUEST.name,
             dest=QuestStateType.EDIT_QUEST_STEP.name,
+        )
+        self.machine.add_transition(
+            trigger=Actions.PLAY.name,
+            source=QuestStateType.MODE_SELECTION.name,
+            dest=QuestStateType.PLAY_START.name,
+        )
+        self.machine.add_transition(
+            trigger=Actions.LEVEL_UP.name,
+            source=QuestStateType.PLAY_START.name,
+            dest=QuestStateType.MODE_SELECTION.name,
         )
         # self.machine.add_transition(
         #     trigger=Actions..name,

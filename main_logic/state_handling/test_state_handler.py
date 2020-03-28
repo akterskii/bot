@@ -2,7 +2,8 @@ import pytest
 
 from main_logic.common.common_const import USERS_STATES
 from main_logic.google_cloud.clients import DatastoreClient
-from main_logic.state_handling.quest_states import State
+from main_logic.state_handling.quest_states import State, QuestStateType
+from main_logic.state_handling.state_handler import get_possible_transitions
 
 
 def test_get_user_state():
@@ -19,4 +20,13 @@ def test_get_user_state():
     if state_record:
         state = State(**state_record)
     print(f'parsed_state: {state}')
+    assert False
+
+@pytest.mark.parametrize('cur_state',[
+    QuestStateType.MODE_SELECTION,
+    QuestStateType.EDIT_INIT,
+])
+def test_get_possible_transitions(cur_state: QuestStateType):
+    actions, action_strings = get_possible_transitions(cur_state=cur_state)
+    print(actions, action_strings)
     assert False

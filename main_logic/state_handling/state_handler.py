@@ -5,8 +5,9 @@ from typing import Optional
 from google.cloud import bigquery
 
 from main_logic.common.common_const import USERS_STATES
+from main_logic.common.mappings import ACTIONS_TO_COMMAND
 from main_logic.google_cloud.clients import DatastoreClient
-from main_logic.state_handling.quest_states import State, QuestStateType
+from main_logic.state_handling.quest_states import State, QuestStateType, QuestState, Actions
 from main_logic.user_managment.users_crud import User
 
 
@@ -31,6 +32,14 @@ def update_user_state(user: User, new_state: QuestStateType) -> bool:
         print(f'Update of state failed for user {user} to state: {new_state}. '
               f'Exception: {e}')
         return False
+
+
+def get_possible_commands(cur_state: QuestStateType):
+    q = QuestState()
+    actions = q.machine.get_triggers(cur_state.name)
+    actions_strings = set(map(lambda x: ACTIONS_TO_COMMAND.get(Actions[x]), actions))
+    return actions_strings
+
 
 def save_user_state(user: User, state: State):
     user_id = user.get_id()

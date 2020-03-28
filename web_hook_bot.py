@@ -15,11 +15,11 @@ from google.cloud import bigquery
 import telebot
 
 from main_logic.common.common_const import USERS_COLLECTION
-from main_logic.common.mappings import actions_to_comands
+from main_logic.common.mappings import actions_to_comands, COMMANDS_TO_ACTIONS
 from main_logic.google_cloud.clients import DatastoreClient
 from main_logic.image_processing import image_crop
 from main_logic.state_handling.quest_states import QuestState, QuestStateType, Actions
-from main_logic.state_handling.state_handler import get_user_state, update_user_state
+from main_logic.state_handling.state_handler import get_user_state, update_user_state, get_possible_commands
 from main_logic.user_managment.users_crud import User
 
 API_TOKEN = TOKEN
@@ -105,40 +105,52 @@ def get_telegram_user_state(user: User) -> QuestStateType:
     return state_type
 
 
-q = QuestState(current_state=QuestStateType.MODE_SELECTION)
 @bot.message_handler()
 def text_message(message):
     user = get_telegram_user(message=message, create_new_user=False)
     state_type = get_telegram_user_state(user=user)
-    text = f'user: {user}, init_state: {state_type}'
+    text = f'user: {user.id}, init_state: {state_type}'
     print(f'text_message CALL:' + text)
     flag = True
-    if QuestStateType[state_type] == QuestStateType.MODE_SELECTION:
-        if message.text == 'edit':
-            update_user_state(user=user, new_state=QuestStateType.EDIT_INIT)
-            bot.send_message(chat_id=user.telegram_id, text=text + "Edit mode")
-        elif message.text == 'play':
-            update_user_state(user=user, new_state=QuestStateType.PLAY_START)
-            bot.send_message(chat_id=user.telegram_id, text=text + "Play mode")
-        else:
-            flag = False
+    command = message.text
+    available_commands = get_possible_commands(cur_state=state_type)
 
-    if QuestStateType[state_type] == QuestStateType.EDIT_INIT:
-        if message.text == 'back':
-            update_user_state(user=user, new_state=QuestStateType.MODE_SELECTION)
-            bot.send_message(chat_id=user.telegram_id, text=text + "Main menu")
-        else:
-            flag = False
-
-    if QuestStateType[state_type] == QuestStateType.PLAY_START:
-        if message.text == 'back':
-            update_user_state(user=user, new_state=QuestStateType.MODE_SELECTION)
-            bot.send_message(chat_id=user.telegram_id, text=text + "Main menu")
-        else:
-            flag = False
+    if command in available_commands:
+        q = QuestState()
+        q.state = state_type
+        q.trigger(COMMANDS_TO_ACTIONS[command].name)
+        update_user_state(user=user, new_state=q.state)
+        bot.send_message(
+            chat_id=user.telegram_id,
+            text=f'Old state: {state_type}, new state: {q.state}')
+    else:
+        bot.send_message(chat_id=user.telegram_id, text=text + " IDK :-(")
+    # if QuestStateType[state_type] == QuestStateType.MODE_SELECTION:
+    #     if message.text == 'edit':
+    #         update_user_state(user=user, new_state=QuestStateType.EDIT_INIT)
+    #         bot.send_message(chat_id=user.telegram_id, text=text + "Edit mode")
+    #     elif message.text == 'play':
+    #         update_user_state(user=user, new_state=QuestStateType.PLAY_START)
+    #         bot.send_message(chat_id=user.telegram_id, text=text + "Play mode")
+    #     else:
+    #         flag = False
+    #
+    # if QuestStateType[state_type] == QuestStateType.EDIT_INIT:
+    #     if message.text == 'back':
+    #         update_user_state(user=user, new_state=QuestStateType.MODE_SELECTION)
+    #         bot.send_message(chat_id=user.telegram_id, text=text + "Main menu")
+    #     else:
+    #         flag = False
+    #
+    # if QuestStateType[state_type] == QuestStateType.PLAY_START:
+    #     if message.text == 'back':
+    #         update_user_state(user=user, new_state=QuestStateType.MODE_SELECTION)
+    #         bot.send_message(chat_id=user.telegram_id, text=text + "Main menu")
+    #     else:
+    #         flag = False
 
     if not flag:
-        bot.send_message(chat_id=user.telegram_id, text=text + "IDK :-(")
+        bot.send_message(chat_id=user.telegram_id, text=text + " IDK :-(")
 
 # Handle '/start' and '/help'
 @bot.message_handler(commands=['start'])
