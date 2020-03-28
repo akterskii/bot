@@ -106,10 +106,9 @@ def text_message(message):
 
     command = message.text
     available_commands = get_possible_commands(cur_state=state_type)
-
-    text = (f'user: {user.user_id}, '
-            f'init_state: {state_type}, '
-            f'available_commands: {available_commands}')
+    print(f'user: {user.user_id}, ')
+    text = (f'Cur state: {state_type.name}, '
+            f'available_commands: [{" ".join(available_commands)}]')
     if command in available_commands:
         q = QuestState()
         q.state = state_type
@@ -117,7 +116,8 @@ def text_message(message):
         update_user_state(user=user, new_state=QuestStateType[q.state])
         bot.send_message(
             chat_id=user.telegram_id,
-            text=f'Old state: {state_type.name}, new state: {q.state}, a')
+            text=f'Old state: {state_type.name}, new state: {q.state}, '
+                 f'available_commands: [{" ".join(available_commands)}]')
     else:
         bot.send_message(chat_id=user.telegram_id, text=text + " IDK :-(")
 
