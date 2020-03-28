@@ -35,6 +35,7 @@ def update_user_state(user: User, new_state: QuestStateType) -> bool:
 
 
 def get_possible_commands(cur_state: QuestStateType):
+    print(f'cur_state: {cur_state}. type {type(cur_state)}')
     q = QuestState()
     actions = q.machine.get_triggers(cur_state.name)
     actions_strings = set(map(lambda x: ACTIONS_TO_COMMAND.get(Actions[x]), actions))
