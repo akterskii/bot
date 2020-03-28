@@ -15,7 +15,7 @@ from google.cloud import bigquery
 import telebot
 
 from main_logic.common.common_const import USERS_COLLECTION
-from main_logic.common.mappings import actions_to_comands, COMMANDS_TO_ACTIONS
+from main_logic.common.mappings import ACTIONS_TO_COMMAND, COMMANDS_TO_ACTIONS
 from main_logic.google_cloud.clients import DatastoreClient
 from main_logic.image_processing import image_crop
 from main_logic.state_handling.quest_states import QuestState, QuestStateType, Actions
@@ -166,7 +166,7 @@ def init_state(message):
     bot.reply_to(message, f'available states: {available_actions}')
 
 
-# @bot.message_handler(commands=[actions_to_comands[Actions.LIST_ALL_QUESTS]])
+# @bot.message_handler(commands=[ACTIONS_TO_COMMAND[Actions.LIST_ALL_QUESTS]])
 # def list_quests(message):
 #     user = get_telegram_user(message=message, create_new_user=False)
 #     state_type = get_telegram_user_state(user=user)
