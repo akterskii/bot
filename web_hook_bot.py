@@ -103,13 +103,13 @@ def get_telegram_user_state(user: User) -> QuestStateType:
 def text_message(message):
     user = get_telegram_user(message=message, create_new_user=False)
     state_type = get_telegram_user_state(user=user)
-    print(f'state_type: {state_type}, type: {type(state_type)}')
-    text = f'user: {user.user_id}, init_state: {state_type}'
 
-    flag = True
     command = message.text
     available_commands = get_possible_commands(cur_state=state_type)
-    print(f'available_commands: {available_commands}')
+
+    text = (f'user: {user.user_id}, '
+            f'init_state: {state_type}, '
+            f'available_commands: {available_commands}')
     if command in available_commands:
         q = QuestState()
         q.state = state_type
@@ -117,35 +117,10 @@ def text_message(message):
         update_user_state(user=user, new_state=QuestStateType[q.state])
         bot.send_message(
             chat_id=user.telegram_id,
-            text=f'Old state: {state_type}, new state: {q.state}')
+            text=f'Old state: {state_type.name}, new state: {q.state}, a')
     else:
         bot.send_message(chat_id=user.telegram_id, text=text + " IDK :-(")
-    # if QuestStateType[state_type] == QuestStateType.MODE_SELECTION:
-    #     if message.text == 'edit':
-    #         update_user_state(user=user, new_state=QuestStateType.EDIT_INIT)
-    #         bot.send_message(chat_id=user.telegram_id, text=text + "Edit mode")
-    #     elif message.text == 'play':
-    #         update_user_state(user=user, new_state=QuestStateType.PLAY_START)
-    #         bot.send_message(chat_id=user.telegram_id, text=text + "Play mode")
-    #     else:
-    #         flag = False
-    #
-    # if QuestStateType[state_type] == QuestStateType.EDIT_INIT:
-    #     if message.text == 'back':
-    #         update_user_state(user=user, new_state=QuestStateType.MODE_SELECTION)
-    #         bot.send_message(chat_id=user.telegram_id, text=text + "Main menu")
-    #     else:
-    #         flag = False
-    #
-    # if QuestStateType[state_type] == QuestStateType.PLAY_START:
-    #     if message.text == 'back':
-    #         update_user_state(user=user, new_state=QuestStateType.MODE_SELECTION)
-    #         bot.send_message(chat_id=user.telegram_id, text=text + "Main menu")
-    #     else:
-    #         flag = False
 
-    if not flag:
-        bot.send_message(chat_id=user.telegram_id, text=text + " IDK :-(")
 
 # Handle '/start' and '/help'
 @bot.message_handler(commands=['start'])
@@ -156,7 +131,8 @@ def init_state(message):
     if not state_type:
         state_type = QuestStateType.MODE_SELECTION
 
-    state_handler = QuestState(current_state=state_type)
+    state_handler = QuestState(state_type)
+    state_handler.state = state_type.name
     available_actions = state_handler.machine.get_transitions(source=state_type)
     bot.reply_to(message, f'available states: {available_actions}')
 
