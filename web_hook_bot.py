@@ -114,7 +114,7 @@ def text_message(message):
         q = QuestState()
         q.state = state_type
         q.trigger(COMMANDS_TO_ACTIONS[command].name)
-        update_user_state(user=user, new_state=q.state)
+        update_user_state(user=user, new_state=QuestStateType[q.state])
         bot.send_message(
             chat_id=user.telegram_id,
             text=f'Old state: {state_type}, new state: {q.state}')
