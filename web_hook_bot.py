@@ -88,12 +88,6 @@ def get_telegram_user(message, create_new_user: bool) -> Optional[User]:
     return user
 
 
-def set_action(func, action: Actions):
-    def wrapper():
-        cur_action = action
-        func()
-    return wrapper
-
 def get_telegram_user_state(user: User) -> QuestStateType:
     print(f'Get state of the user: {user}')
     state_type = None
@@ -111,11 +105,11 @@ def text_message(message):
     state_type = get_telegram_user_state(user=user)
     print(f'state_type: {state_type}')
     text = f'user: {user.user_id}, init_state: {state_type}'
-    print(f'text_message CALL:' + text)
+
     flag = True
     command = message.text
     available_commands = get_possible_commands(cur_state=state_type)
-
+    print(f'available_commands: {available_commands}')
     if command in available_commands:
         q = QuestState()
         q.state = state_type
