@@ -1,4 +1,5 @@
 import dataclasses
+from enum import Enum
 
 
 class MetaSingleton(type):
