@@ -38,22 +38,6 @@ def test_get_possible_transitions(cur_state: QuestStateType):
 def test_state():
     state_record = {'state_type': 'EDIT_INIT'}
     s = State(**state_record)
-    print(f'old s: {s}')
-    cls = type(s)
-    print(cls)
-    for f in dataclasses.fields(cls):
-        print(f.type)
-        try:
-            if issubclass(f.type, Enum):
-                print('fasdf')
-                value = getattr(s, f.name)
-                if not isinstance(value, str):
-                    continue
 
-                new_value = getattr(f.type, value)
-                print(f'\nUpdate: {new_value}!')
-                setattr(s, f.name, new_value)
-        except TypeError:
-            pass
     print(f'new s: {s}')
     assert False

@@ -31,7 +31,7 @@ def dicts_to_dataclasses(instance):
                 if not isinstance(value, str):
                     continue
 
-                new_value = f.type(value)
+                new_value = getattr(f.type, value)
                 setattr(instance, f.name, new_value)
         except TypeError:
             pass
