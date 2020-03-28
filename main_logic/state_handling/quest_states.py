@@ -114,6 +114,11 @@ class QuestState(metaclass=MetaSingleton):
             dest=QuestStateType.EDIT_QUEST_STEP.name,
         )
         self.machine.add_transition(
+            trigger=Actions.LEVEL_UP.name,
+            source=QuestStateType.EDIT_QUEST_STEP.name,
+            dest=QuestStateType.EDIT_QUEST.name,
+        )
+        self.machine.add_transition(
             trigger=Actions.PLAY.name,
             source=QuestStateType.MODE_SELECTION.name,
             dest=QuestStateType.PLAY_START.name,

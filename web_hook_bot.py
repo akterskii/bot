@@ -104,11 +104,11 @@ def text_message(message):
     user = get_telegram_user(message=message, create_new_user=False)
     state_type = get_telegram_user_state(user=user)
 
-    command = message.text
+    command = message.text.lower()
     available_commands = get_possible_commands(cur_state=state_type)
     print(f'user: {user.user_id}, ')
     text = (f'Cur state: {state_type.name}, '
-            f'available_commands: [{" ".join(available_commands)}]')
+            f'available_commands: [{", ".join(available_commands)}]')
     if command in available_commands:
         q = QuestState()
         q.state = state_type
