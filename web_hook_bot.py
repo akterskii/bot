@@ -109,6 +109,7 @@ def get_telegram_user_state(user: User) -> QuestStateType:
 def text_message(message):
     user = get_telegram_user(message=message, create_new_user=False)
     state_type = get_telegram_user_state(user=user)
+    print(f'state_type: {state_type}')
     text = f'user: {user.user_id}, init_state: {state_type}'
     print(f'text_message CALL:' + text)
     flag = True
