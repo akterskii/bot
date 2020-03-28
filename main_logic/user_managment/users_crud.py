@@ -1,10 +1,12 @@
 import dataclasses
 from dataclasses import asdict
+from enum import Enum
 from typing import Optional, Dict, Any, List
 
 from dataclasses import dataclass
 
 from main_logic.common.common_const import USERS_COLLECTION
+from main_logic.common.patterns import dicts_to_dataclasses
 from main_logic.google_cloud.clients import DatastoreClient
 
 
@@ -14,22 +16,6 @@ class UserNotFound(Exception):
 
 class ManyUsersWithSameID(Exception):
     """Custom exception for the many users with same id"""
-
-
-def dicts_to_dataclasses(instance):
-    """Convert all fields of type `dataclass` into an instance of the
-    specified data class if the current value is of type dict."""
-    cls = type(instance)
-    for f in dataclasses.fields(cls):
-        if not dataclasses.is_dataclass(f.type):
-            continue
-
-        value = getattr(instance, f.name)
-        if not isinstance(value, dict):
-            continue
-
-        new_value = f.type(**value)
-        setattr(instance, f.name, new_value)
 
 
 @dataclass

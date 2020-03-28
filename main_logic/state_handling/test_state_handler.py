@@ -1,9 +1,12 @@
+import dataclasses
+from enum import Enum
+
 import pytest
 
 from main_logic.common.common_const import USERS_STATES
 from main_logic.google_cloud.clients import DatastoreClient
 from main_logic.state_handling.quest_states import State, QuestStateType
-from main_logic.state_handling.state_handler import get_possible_transitions
+from main_logic.state_handling.state_handler import get_possible_commands
 
 
 def test_get_user_state():
@@ -27,6 +30,30 @@ def test_get_user_state():
     QuestStateType.EDIT_INIT,
 ])
 def test_get_possible_transitions(cur_state: QuestStateType):
-    actions, action_strings = get_possible_transitions(cur_state=cur_state)
+    actions, action_strings = get_possible_commands(cur_state=cur_state)
     print(actions, action_strings)
+    assert False
+
+
+def test_state():
+    state_record = {'state_type': 'EDIT_INIT'}
+    s = State(**state_record)
+    print(f'old s: {s}')
+    cls = type(s)
+    print(cls)
+    for f in dataclasses.fields(cls):
+        print(f.type)
+        try:
+            if issubclass(f.type, Enum):
+                print('fasdf')
+                value = getattr(s, f.name)
+                if not isinstance(value, str):
+                    continue
+
+                new_value = getattr(f.type, value)
+                print(f'\nUpdate: {new_value}!')
+                setattr(s, f.name, new_value)
+        except TypeError:
+            pass
+    print(f'new s: {s}')
     assert False

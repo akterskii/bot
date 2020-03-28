@@ -2,7 +2,7 @@ from enum import Enum, auto
 from typing import Optional, List, Tuple
 from dataclasses import dataclass
 
-from main_logic.common.patterns import MetaSingleton
+from main_logic.common.patterns import MetaSingleton, dicts_to_dataclasses
 from main_logic.state_handling.transitions_metadata import TransitionMetadataHandler
 from transitions import Machine
 
@@ -53,6 +53,9 @@ class Actions(Enum):
 
 @dataclass
 class State:
+    def __post_init__(self):
+        dicts_to_dataclasses(instance=self)
+
     state_type: QuestStateType
     quest_id: Optional[str] = ''
     step_id: Optional[int] = ''

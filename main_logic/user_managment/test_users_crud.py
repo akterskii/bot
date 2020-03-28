@@ -1,3 +1,4 @@
+import dataclasses
 from dataclasses import asdict
 
 import pytest
@@ -27,10 +28,11 @@ def test_from_dict():
         'registration_date': '2020.02.12 12:11:01'
     }
     user_dict = {
+        'user_id': "id1",
         'first_name': "aa",
         'last_name': "bb",
         'telegram_id': 'tgid_1',
-        'web_id': web_dict
+        'web_credentials': web_dict
     }
     user = User(**user_dict)
 
