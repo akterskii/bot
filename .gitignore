@@ -4,4 +4,4 @@ __pycache__/
 
 /credentials/
 /tmp/
-test.py
+test.py*.pyc

@@ -10,6 +10,8 @@ import ssl
 from typing import Optional
 
 from aiohttp import web
+from telebot import types
+
 from credentials.tokens import TOKEN, HOST_IP
 from google.cloud import bigquery
 import telebot
@@ -116,10 +118,15 @@ def text_message(message):
         update_user_state(user=user, new_state=QuestStateType[q.state])
         available_commands = get_possible_commands(
             cur_state=QuestStateType[q.state])
+        keyboard = types.ReplyKeyboardMarkup(
+            one_time_keyboard=True, resize_keyboard=True)
+        keyboard.add(*available_commands)
         bot.send_message(
             chat_id=user.telegram_id,
             text=f'Old state: {state_type.name}, new state: {q.state}, '
-                 f'available_commands: [{" ".join(available_commands)}]')
+                 f'available_commands: [{" ".join(available_commands)}]',
+            reply_markup=keyboard,
+        )
     else:
         bot.send_message(chat_id=user.telegram_id, text=text + " IDK :-(")
 
