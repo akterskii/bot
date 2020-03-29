@@ -81,7 +81,8 @@ def get_telegram_user(message, create_new_user: bool) -> Optional[User]:
                 first_name=first_name,
                 last_name=last_name,
             )
-            user.add_to_db()
+            user_id = user.add_to_db()
+
         else:
             return None
 
@@ -103,8 +104,6 @@ def get_telegram_user_state(user: User) -> QuestStateType:
 def text_message(message):
     user = get_telegram_user(message=message, create_new_user=True)
     state_type = get_telegram_user_state(user=user)
-    if not state_type:
-        state_type = QuestStateType.MODE_SELECTION
 
     command = message.text.lower()
     available_commands = get_possible_commands(cur_state=state_type)

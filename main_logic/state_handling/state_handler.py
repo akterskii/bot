@@ -4,7 +4,7 @@ from typing import Optional
 
 from google.cloud import bigquery
 
-from main_logic.common.common_const import USERS_STATES
+from main_logic.common.common_const import USERS_STATES, INITIAL_STATE
 from main_logic.common.mappings import ACTIONS_TO_COMMAND
 from main_logic.google_cloud.clients import DatastoreClient
 from main_logic.state_handling.quest_states import State, QuestStateType, QuestState, Actions
@@ -21,6 +21,12 @@ def get_user_state(user: User) -> Optional[State]:
     print(f'parsed_state: {state}')
     return state
 
+
+def init_user_state(user_id: str) -> bool:
+    state_ref = DatastoreClient().get_client().collection(
+        USERS_STATES).document(user_id)
+    state_ref.add({u'state_type': INITIAL_STATE.name})
+    
 
 def update_user_state(user: User, new_state: QuestStateType) -> bool:
     try:
