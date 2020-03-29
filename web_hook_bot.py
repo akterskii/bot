@@ -100,34 +100,11 @@ def get_telegram_user_state(user: User) -> QuestStateType:
 
 
 @bot.message_handler()
-def send1(message):
-    bot.reply_to(message, '1')
-
-
-@bot.message_handler()
-def send2(message):
-    bot.reply_to(message, '2')
-
-
-# Handle '/start'
-@bot.message_handler(commands=['start'])
-def init_state(message):
+def text_message(message):
     user = get_telegram_user(message=message, create_new_user=True)
     state_type = get_telegram_user_state(user=user)
-
     if not state_type:
         state_type = QuestStateType.MODE_SELECTION
-
-    state_handler = QuestState()
-    state_handler.state = state_type.name
-    available_actions = state_handler.machine.get_transitions(source=state_type)
-    bot.reply_to(message, f'available states: {available_actions}')
-
-
-@bot.message_handler()
-def text_message(message):
-    user = get_telegram_user(message=message, create_new_user=False)
-    state_type = get_telegram_user_state(user=user)
 
     command = message.text.lower()
     available_commands = get_possible_commands(cur_state=state_type)
