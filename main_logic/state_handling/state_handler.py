@@ -25,8 +25,8 @@ def get_user_state(user: User) -> Optional[State]:
 def init_user_state(user_id: str) -> bool:
     state_ref = DatastoreClient().get_client().collection(
         USERS_STATES).document(user_id)
-    state_ref.add({u'state_type': INITIAL_STATE.name})
-    
+    state_ref.set({u'state_type': INITIAL_STATE.name})
+
 
 def update_user_state(user: User, new_state: QuestStateType) -> bool:
     try:
