@@ -19,7 +19,7 @@ import telebot
 from main_logic.common.mappings import COMMANDS_TO_ACTIONS
 from main_logic.image_processing import image_crop
 from main_logic.state_handling.quest_states import QuestState, QuestStateType
-from main_logic.state_handling.state_handler import get_user_state, update_user_state, get_possible_commands
+from main_logic.state_handling.state_handler import get_user_state, update_user_state, get_possible_commands, init_user_state
 from main_logic.user_managment.users_crud import User
 
 API_TOKEN = TOKEN
@@ -82,7 +82,7 @@ def get_telegram_user(message, create_new_user: bool) -> Optional[User]:
                 last_name=last_name,
             )
             user_id = user.add_to_db()
-
+            init_user_state(user_id=user_id)
         else:
             return None
 
