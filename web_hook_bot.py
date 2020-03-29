@@ -118,7 +118,8 @@ def text_message(message):
         update_user_state(user=user, new_state=QuestStateType[q.state])
         available_commands = get_possible_commands(
             cur_state=QuestStateType[q.state])
-        keyboard = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+        keyboard = types.ReplyKeyboardMarkup(
+            one_time_keyboard=True, resize_keyboard=True)
         keyboard.add(*available_commands)
         bot.send_message(
             chat_id=user.telegram_id,
