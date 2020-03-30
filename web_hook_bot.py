@@ -16,12 +16,10 @@ from credentials.tokens import TOKEN, HOST_IP
 from google.cloud import bigquery
 import telebot
 
-from main_logic.common.common_const import USERS_COLLECTION
-from main_logic.common.mappings import ACTIONS_TO_COMMAND, COMMANDS_TO_ACTIONS
-from main_logic.google_cloud.clients import DatastoreClient
+from main_logic.common.mappings import COMMANDS_TO_ACTIONS
 from main_logic.image_processing import image_crop
-from main_logic.state_handling.quest_states import QuestState, QuestStateType, Actions
-from main_logic.state_handling.state_handler import get_user_state, update_user_state, get_possible_commands
+from main_logic.state_handling.quest_states import QuestState, QuestStateType
+from main_logic.state_handling.state_handler import get_user_state, update_user_state, get_possible_commands, init_user_state
 from main_logic.user_managment.users_crud import User
 
 API_TOKEN = TOKEN
@@ -83,7 +81,8 @@ def get_telegram_user(message, create_new_user: bool) -> Optional[User]:
                 first_name=first_name,
                 last_name=last_name,
             )
-            user.add_to_db()
+            user_id = user.add_to_db()
+            init_user_state(user_id=user_id)
         else:
             return None
 
@@ -103,7 +102,7 @@ def get_telegram_user_state(user: User) -> QuestStateType:
 
 @bot.message_handler()
 def text_message(message):
-    user = get_telegram_user(message=message, create_new_user=False)
+    user = get_telegram_user(message=message, create_new_user=True)
     state_type = get_telegram_user_state(user=user)
 
     command = message.text.lower()
@@ -129,30 +128,6 @@ def text_message(message):
         )
     else:
         bot.send_message(chat_id=user.telegram_id, text=text + " IDK :-(")
-
-
-# Handle '/start' and '/help'
-@bot.message_handler(commands=['start'])
-def init_state(message):
-    user = get_telegram_user(message=message, create_new_user=True)
-    state_type =get_telegram_user_state(user=user)
-
-    if not state_type:
-        state_type = QuestStateType.MODE_SELECTION
-
-    state_handler = QuestState(state_type)
-    state_handler.state = state_type.name
-    available_actions = state_handler.machine.get_transitions(source=state_type)
-    bot.reply_to(message, f'available states: {available_actions}')
-
-
-# @bot.message_handler(commands=[ACTIONS_TO_COMMAND[Actions.LIST_ALL_QUESTS]])
-# def list_quests(message):
-#     user = get_telegram_user(message=message, create_new_user=False)
-#     state_type = get_telegram_user_state(user=user)
-#     if not state_type:
-#         pass
-
 
 
 @bot.message_handler(commands=['new'])
@@ -183,6 +158,7 @@ def send_welcome(message):
                   f"I am here to echo your kind words back to you. "
                   f"Your id = {message.from_user.id} status={status}"))
 
+
 # Handle image uploads
 @bot.message_handler(func=lambda message: True, content_types=['photo'])
 def upload_photo(message):
@@ -209,6 +185,7 @@ def upload_photo(message):
         # end proceess
     # bot.send_photo(message.chat.id, photo_id)
 
+
 # Handle all other messages
 @bot.message_handler(func=lambda message: True, content_types=['text'])
 def echo_message(message):
@@ -233,4 +210,3 @@ web.run_app(
     port=WEBHOOK_PORT,
     ssl_context=context,
 )
-
